@@ -1,0 +1,1 @@
+Script, which goes to urls from excel file and checks determined elements, writing them urls in new excel table.
