@@ -20,19 +20,18 @@ async function parseLandings(filePath) {
     for (const url of pages) {
         const page = await browser.newPage()
         await page.goto(url)
-        const elementExists = await page.evaluate(() => {
-            const elements = document.querySelectorAll('.pagination__item')
-            for (const element of elements) {
-                if (element.innerText === '300') {
-                    return true
-                }
+        try {
+            await page.waitForSelector('.pagination__item')
+            const element = await page.evaluate(() => {
+                return document.querySelectorAll('.pagination__item')[5].innerText
+            })
+            if (element === '300') {
+                urls300.push({ url: url })
+            } else {
+                console.log(`${url}: ${element}`)
             }
-            return false
-        })
-        if (elementExists) {
-            urls300.push({url: url })
-        } else {
-            console.log('no')
+        } catch (e) {
+            console.log(`${url}: < 5`)
         }
     }
 
@@ -47,7 +46,7 @@ async function parseLandings(filePath) {
         const sheet = workbook.Sheets[workbook.SheetNames[0]]
         // update the sheet with the new data from urls300 array
         //This method call will add the data from the urls300 array to the sheet sheet, starting from the last row and skipping the first row of data.
-        XLSX.utils.sheet_add_json(sheet, urls300, {origin: -1, skipHeader: true})
+        XLSX.utils.sheet_add_json(sheet, urls300, { origin: -1, skipHeader: true })
         // write the updated sheet back to the urls300.xlsx file
         XLSX.writeFile(workbook, 'urls300.xlsx')
     } else {
@@ -63,7 +62,6 @@ async function parseLandings(filePath) {
 const filePath = "C:\\Users\\User\\Desktop\\landings.xlsx"
 
 parseLandings(filePath)
-
 
 
 
