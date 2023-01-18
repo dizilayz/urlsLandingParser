@@ -31,6 +31,9 @@ async function parseLandings(filePath) {
                 console.log(`${url}: ${element}`)
             }
         } catch (e) {
+            if(e.name === 'TimeoutError'){
+                console.log(`Navigation timeout of 60 seconds exceeded for ${url}`)
+            }
             console.log(`${url}: < 5`)
         }
     }
