@@ -18,9 +18,14 @@ async function parseLandings(filePath) {
     const urls300 = []
     const browser = await puppeteer.launch()
     for (const url of pages) {
-        const page = await browser.newPage()
-        await page.goto(url)
+
         try {
+            const page = await browser.newPage()
+            await page.goto(url, {
+                waitUntil: 'domcontentloaded',
+                timeout: 60000
+            })
+            setTimeout(()=> {}, 2000)
             await page.waitForSelector('.pagination__item')
             const element = await page.evaluate(() => {
                 return document.querySelectorAll('.pagination__item')[5].innerText
@@ -31,14 +36,13 @@ async function parseLandings(filePath) {
                 console.log(`${url}: ${element}`)
             }
         } catch (e) {
-            if(e.name === 'TimeoutError'){
+            if (e.name === 'TimeoutError') {
                 console.log(`Navigation timeout of 60 seconds exceeded for ${url}`)
             }
             console.log(`${url}: < 5`)
         }
     }
 
-    // close the browser
     await browser.close()
 
     // check if the urls300.xlsx file exists
