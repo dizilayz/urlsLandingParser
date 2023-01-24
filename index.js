@@ -16,17 +16,27 @@ async function parseLandings(filePath) {
     }
 
     const urls300 = []
-    const browser = await puppeteer.launch()
+    const browser = await puppeteer.launch({
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--no-zygote',
+            '--disable-gpu'
+        ],
+        headless: true
+    })
+    const page = await browser.newPage()
     for (const url of pages) {
-
         try {
-            const page = await browser.newPage()
             await page.goto(url, {
                 waitUntil: 'domcontentloaded',
-                timeout: 60000
+                timeout: 30000
             })
-            setTimeout(()=> {}, 2000)
-            await page.waitForSelector('.pagination__item')
+            setTimeout(() => { }, 2000)
+            await page.waitForSelector('.pagination__item', { timeout: 5000 })
             const element = await page.evaluate(() => {
                 return document.querySelectorAll('.pagination__item')[5].innerText
             })
